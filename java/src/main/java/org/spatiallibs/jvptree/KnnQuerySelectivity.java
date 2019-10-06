@@ -1,0 +1,53 @@
+package org.spatiallibs.jvptree;
+
+import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import com.eatthepath.jvptree.VPTree;
+
+import org.spatiallibs.jvptree.util.Utilities;
+import org.spatiallibs.jvptree.queries.Queries;
+import org.spatiallibs.jvptree.index.BuildIndex;
+import org.spatiallibs.jvptree.cartesianpoint.CartesianPoint;
+import org.spatiallibs.jvptree.cartesianpoint.SimpleCartesianPoint;
+
+@State(Scope.Benchmark)
+public class KnnQuerySelectivity {
+
+	// numPoints in millions
+	@Param({"50"})
+	private String numPoints;
+
+	// selectivity of a query
+	@Param({"1", "2", "5", "10", "50", "100", "500", "1000", "5000", "10000", "50000", "500000", "5000000", "50000000"})
+	private int k;
+
+	private List<SimpleCartesianPoint> points;
+	private List<SimpleCartesianPoint> queryPoints;
+	private VPTree<CartesianPoint, SimpleCartesianPoint> vptree;
+	private int idx;
+
+	@Setup
+	public void setup() {
+		points = Utilities.readBinaryCartesianPoints(System.getProperty("user.dir") + "/resources/datasets/projected/binary/java/" + numPoints + "M_rides.bin");
+		queryPoints = Utilities.getQueryPoints(System.getProperty("user.dir") + "/resources/query_datasets/projected/knn_points.csv");
+		vptree = BuildIndex.buildVpTree(points);
+		idx = 0;
+	}
+
+	@Benchmark
+	@BenchmarkMode(Mode.Throughput)
+	@OutputTimeUnit(TimeUnit.SECONDS)
+	@Measurement(iterations = 5, time = 60)
+	@Threads(value = 1)
+	@Fork(value = 1)
+	public void benchmark(Blackhole blackhole) {
+		SimpleCartesianPoint queryPoint = queryPoints.get(idx);
+		List<SimpleCartesianPoint> result = Queries.knnQuery(vptree, queryPoint, k);
+		blackhole.consume(result);
+		idx = (idx + 1) % queryPoints.size();
+	}
+}
