@@ -34,10 +34,10 @@ public class DistanceQuerySelectivity {
 
 	@Setup
 	public void setup() {
-		points = Utilities.readBinaryPoints(System.getProperty("user.dir") + "/../resources/datasets/projected/binary/java/" + numPoints + "M_rides.bin");
+		points = Utilities.readBinaryPoints(System.getProperty("user.dir") + "/resources/datasets/projected/binary/java/" + numPoints + "M_rides.bin");
 		quadtree = BuildIndex.buildQuadtree(points, 18);
-		queryPoints = Utilities.getQueryPoints(System.getProperty("user.dir") + "/../resources/query_datasets/projected/taxi_distance_" + selectivity + ".csv");
-		distances = Utilities.getDistances(System.getProperty("user.dir") + "/../resources/query_datasets/projected/taxi_distance_" + selectivity + ".csv");
+		queryPoints = Utilities.getQueryPoints(System.getProperty("user.dir") + "/resources/query_datasets/projected/taxi_distance_" + selectivity + ".csv");
+		distances = Utilities.getDistances(System.getProperty("user.dir") + "/resources/query_datasets/projected/taxi_distance_" + selectivity + ".csv");
 		envs = Utilities.getEnvelopes(queryPoints, distances);
 		index = 0;
 	}
