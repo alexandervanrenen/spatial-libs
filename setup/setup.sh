@@ -5,6 +5,12 @@ echo "creating resources directory .."
 mv spatial-libs.db.in.tum.de resources/
 find . -type f -name 'index.html' -delete
 
+MD5_RESULT=`find resources -type f -exec md5sum {} \; | md5sum | awk '{ print $1 }'`
+if [ "${MD5_RESULT}" != "7a79408e7c430ace909469cdf584cd7e" ]; then
+  echo "Checksum of download did not match. Please try running the ./setup.sh again."
+  exit
+fi
+
 echo "creating symlinks .."
 curr_dir=$(echo $PWD)
 parentdir=`eval "cd $curr_dir/..;pwd;cd - > /dev/null"`
